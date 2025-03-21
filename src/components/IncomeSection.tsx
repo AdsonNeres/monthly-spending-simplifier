@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,13 +8,21 @@ import { formatCurrency, parseCurrencyInput } from "@/utils/formatCurrency";
 
 interface IncomeSectionProps {
   onIncomeChange: (income: number) => void;
+  initialIncome?: number;
 }
 
-const IncomeSection: React.FC<IncomeSectionProps> = ({ onIncomeChange }) => {
+const IncomeSection: React.FC<IncomeSectionProps> = ({ onIncomeChange, initialIncome = 0 }) => {
   const [mainIncome, setMainIncome] = useState<string>("");
   const [showAdditionalIncome, setShowAdditionalIncome] = useState<boolean>(false);
   const [additionalIncome, setAdditionalIncome] = useState<string>("");
   const [saved, setSaved] = useState<boolean>(false);
+
+  // Inicializar com o valor carregado do Supabase, se existir
+  useEffect(() => {
+    if (initialIncome > 0) {
+      setMainIncome(initialIncome.toString());
+    }
+  }, [initialIncome]);
 
   const handleSave = () => {
     const mainAmount = parseCurrencyInput(mainIncome);
@@ -48,7 +56,7 @@ const IncomeSection: React.FC<IncomeSectionProps> = ({ onIncomeChange }) => {
               <Input
                 id="main-income"
                 type="text"
-                placeholder="0,00"
+                placeholder={initialIncome > 0 ? initialIncome.toString() : "0,00"}
                 value={mainIncome}
                 onChange={(e) => {
                   setMainIncome(e.target.value);
