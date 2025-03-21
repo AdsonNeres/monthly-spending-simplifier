@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LogIn, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 const Auth = () => {
   const [loginEmail, setLoginEmail] = useState("");
@@ -27,10 +28,20 @@ const Auth = () => {
     e.preventDefault();
     
     if (registerPassword !== registerPasswordConfirm) {
-      return alert("As senhas não coincidem!");
+      toast.error("As senhas não coincidem!");
+      return;
     }
     
-    await signUp(registerEmail, registerPassword);
+    try {
+      await signUp(registerEmail, registerPassword);
+      // Limpar os campos após o cadastro
+      setRegisterEmail("");
+      setRegisterPassword("");
+      setRegisterPasswordConfirm("");
+      toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
+    } catch (error) {
+      console.error("Erro ao cadastrar:", error);
+    }
   };
 
   return (
