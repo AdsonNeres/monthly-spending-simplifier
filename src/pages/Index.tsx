@@ -18,6 +18,9 @@ const Index = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState<MonthYear>(getCurrentMonthYear());
   const [income, setIncome] = useState<number>(0);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  
+  // Calculate total expenses
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
   // Unique key for localStorage based on month and year
   const getStorageKey = (prefix: string) => `finance_tracker_${prefix}_${currentMonthYear.month}_${currentMonthYear.year}`;
@@ -74,13 +77,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-br from-blue-50 to-gray-50">
+    <div className="min-h-screen py-8 md:py-12 bg-gradient-to-br from-blue-50 to-gray-50">
       <div className="container px-4 mx-auto max-w-5xl">
-        <header className="mb-12 text-center animate-fade-in">
-          <h1 className="mb-2 text-4xl font-bold tracking-tight text-gray-900">
+        <header className="mb-8 md:mb-12 text-center animate-fade-in">
+          <h1 className="mb-2 text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
             Controle de Gastos Mensais
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-base md:text-lg text-gray-600">
             Gerencie suas finanças pessoais com simplicidade e elegância
           </p>
         </header>
@@ -94,7 +97,11 @@ const Index = () => {
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-6">
             <IncomeSection onIncomeChange={handleIncomeChange} />
-            <FinancialGoals totalIncome={income} savingsPercentage={30} />
+            <FinancialGoals 
+              totalIncome={income} 
+              totalExpenses={totalExpenses}
+              savingsPercentage={30} 
+            />
           </div>
 
           <div className="space-y-6">

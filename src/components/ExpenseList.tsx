@@ -57,7 +57,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
 
   return (
     <div className="p-6 mb-8 space-y-4 transition-all duration-500 bg-white border border-gray-100 rounded-2xl shadow-sm animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-xl font-semibold">Análise de Gastos</h2>
         <p className="px-3 py-1 text-sm font-medium text-white bg-primary rounded-full">
           Total: {formatCurrency(totalExpenses)}
@@ -70,8 +70,8 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
             key={expense.id}
             className={`expense-card ${getExpenseCategory(expense.amount)} p-4 pl-6`}
           >
-            <div className="flex items-center justify-between">
-              <div>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="break-words max-w-[calc(100%-60px)]">
                 <h3 className="text-base font-medium">{expense.description}</h3>
                 <p className="text-lg font-semibold">
                   {formatCurrency(expense.amount)}
@@ -79,7 +79,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
               </div>
               <button
                 onClick={() => onDeleteExpense(expense.id)}
-                className="p-2 text-gray-400 transition-all duration-300 rounded-full hover:bg-red-50 hover:text-red-500"
+                className="p-2 text-gray-400 transition-all duration-300 rounded-full hover:bg-red-50 hover:text-red-500 flex-shrink-0"
                 aria-label="Delete expense"
               >
                 <Trash2 className="w-4 h-4" />

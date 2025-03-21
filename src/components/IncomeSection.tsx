@@ -24,10 +24,10 @@ const IncomeSection: React.FC<IncomeSectionProps> = ({ onIncomeChange }) => {
     onIncomeChange(totalIncome);
     setSaved(true);
     
-    // Format the input values
-    setMainIncome(mainAmount ? formatCurrency(mainAmount).replace("R$", "").trim() : "");
+    // Clear the input values after saving
+    setMainIncome("");
     if (showAdditionalIncome) {
-      setAdditionalIncome(additionalAmount ? formatCurrency(additionalAmount).replace("R$", "").trim() : "");
+      setAdditionalIncome("");
     }
     
     setTimeout(() => setSaved(false), 2000);
