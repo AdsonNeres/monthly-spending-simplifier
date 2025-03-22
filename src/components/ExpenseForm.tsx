@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { formatCurrency, parseCurrencyInput } from "@/utils/formatCurrency";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface Expense {
   id: string;
@@ -46,8 +47,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
     setIsSubmitting(true);
     
     try {
+      // Generate a proper UUID instead of using timestamp
       const newExpense: Expense = {
-        id: Date.now().toString(),
+        id: uuidv4(),
         description: description.trim(),
         amount: parsedAmount,
         date: new Date(),
