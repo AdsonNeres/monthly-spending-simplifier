@@ -43,9 +43,9 @@ const Index = () => {
           .eq('user_id', user.id)
           .eq('month', currentMonthYear.month + 1) // +1 porque os meses no JS são 0-indexed
           .eq('year', currentMonthYear.year)
-          .single();
+          .maybeSingle(); // Changed from single() to maybeSingle()
         
-        if (incomeError && incomeError.code !== 'PGRST116') { // PGRST116 é "não encontrado"
+        if (incomeError) {
           console.error("Erro ao carregar renda:", incomeError);
           toast.error("Erro ao carregar dados de renda");
         } else if (incomeData) {
@@ -99,13 +99,18 @@ const Index = () => {
     
     try {
       // Verificar se já existe um registro para este mês
-      const { data: existingIncome } = await supabase
+      const { data: existingIncome, error: checkError } = await supabase
         .from('monthly_income')
         .select('id')
         .eq('user_id', user.id)
         .eq('month', currentMonthYear.month + 1)
         .eq('year', currentMonthYear.year)
-        .single();
+        .maybeSingle(); // Changed from single() to maybeSingle()
+      
+      if (checkError) {
+        console.error("Erro ao verificar renda:", checkError);
+        throw checkError;
+      }
       
       if (existingIncome) {
         // Atualizar registro existente
@@ -151,10 +156,14 @@ const Index = () => {
           description: expense.description,
           amount: expense.amount,
           month: currentMonthYear.month + 1,
-          year: currentMonthYear.year
+          year: currentMonthYear.year,
+          created_at: new Date().toISOString() // Added explicit created_at field
         });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Erro detalhado:", error);
+        throw error;
+      }
       
       const newExpense = { ...expense, id: newId };
       setExpenses([...expenses, newExpense]);
