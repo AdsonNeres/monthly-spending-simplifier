@@ -2,15 +2,14 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 type AuthContextType = {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
 };
 
@@ -20,7 +19,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Configure autenticação na inicialização
@@ -49,14 +47,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         toast.error(error.message);
-        return;
+        return { success: false, error: error.message };
       }
       
       toast.success("Login realizado com sucesso!");
-      navigate("/");
+      return { success: true };
     } catch (error) {
       console.error("Erro ao fazer login:", error);
-      toast.error("Erro ao fazer login. Tente novamente.");
+      const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login. Tente novamente.";
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -69,14 +69,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (error) {
         toast.error(error.message);
-        return;
+        return { success: false, error: error.message };
       }
       
       toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
-      navigate("/auth");
+      return { success: true };
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      toast.error("Erro ao cadastrar. Tente novamente.");
+      const errorMessage = error instanceof Error ? error.message : "Erro ao cadastrar. Tente novamente.";
+      toast.error(errorMessage);
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
@@ -87,7 +89,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       await supabase.auth.signOut();
       toast.success("Logout realizado com sucesso!");
-      navigate("/auth");
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
       toast.error("Erro ao fazer logout. Tente novamente.");

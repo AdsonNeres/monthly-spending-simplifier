@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,22 @@ const Auth = () => {
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerPasswordConfirm, setRegisterPasswordConfirm] = useState("");
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, loading, user } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect to home if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(loginEmail, loginPassword);
+    const result = await signIn(loginEmail, loginPassword);
+    if (result.success) {
+      navigate("/");
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -33,12 +43,14 @@ const Auth = () => {
     }
     
     try {
-      await signUp(registerEmail, registerPassword);
-      // Limpar os campos após o cadastro
-      setRegisterEmail("");
-      setRegisterPassword("");
-      setRegisterPasswordConfirm("");
-      toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
+      const result = await signUp(registerEmail, registerPassword);
+      if (result.success) {
+        // Limpar os campos após o cadastro
+        setRegisterEmail("");
+        setRegisterPassword("");
+        setRegisterPasswordConfirm("");
+        toast.success("Cadastro realizado com sucesso! Faça login para continuar.");
+      }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
     }
