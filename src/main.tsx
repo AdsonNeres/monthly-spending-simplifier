@@ -15,7 +15,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Impede que o Chrome mostre o prompt automaticamente
   e.preventDefault();
   // Salva o evento para que possa ser acionado mais tarde
-  const deferredPrompt = e;
+  const deferredPrompt = e as any;
   
   // Após algum tempo ou interação do usuário, mostra um toast
   setTimeout(() => {
@@ -27,7 +27,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
           // Mostra o prompt de instalação
           deferredPrompt.prompt();
           // Espera pelo resultado
-          deferredPrompt.userChoice.then((choiceResult) => {
+          deferredPrompt.userChoice.then((choiceResult: {outcome: string}) => {
             if (choiceResult.outcome === 'accepted') {
               console.log('Usuário aceitou a instalação');
               toast.success("Aplicativo instalado com sucesso!");
@@ -49,7 +49,9 @@ window.addEventListener('online', () => {
   // Aciona a sincronização de dados quando volta a ficar online
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     navigator.serviceWorker.ready.then(registration => {
-      registration.sync.register('sync-expenses').catch(error => {
+      // Usamos any para contornar o erro de tipos do TypeScript
+      // pois o SyncManager não está completamente tipado na lib padrão
+      (registration as any).sync.register('sync-expenses').catch((error: Error) => {
         console.error('Falha ao registrar sincronização em segundo plano:', error);
       });
     });
