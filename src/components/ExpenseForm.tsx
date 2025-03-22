@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +16,10 @@ export interface Expense {
 
 interface ExpenseFormProps {
   onAddExpense: (expense: Expense) => void;
+  currentMonthYear?: { month: number; year: number };
 }
 
-const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
+const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense, currentMonthYear }) => {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +47,6 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
     setIsSubmitting(true);
     
     try {
-      // Generate a proper UUID instead of using timestamp
       const newExpense: Expense = {
         id: uuidv4(),
         description: description.trim(),

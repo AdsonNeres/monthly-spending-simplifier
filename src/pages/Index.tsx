@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import MonthNavigation from "@/components/MonthNavigation";
@@ -146,18 +145,16 @@ const Index = () => {
     if (!user) return;
     
     try {
-      const newId = expense.id || uuidv4();
-      
       const { error } = await supabase
         .from('expenses')
         .insert({
-          id: newId,
+          id: expense.id,
           user_id: user.id,
           description: expense.description,
           amount: expense.amount,
-          month: currentMonthYear.month + 1,
+          month: currentMonthYear.month + 1, // +1 because months are 0-indexed in JS
           year: currentMonthYear.year,
-          created_at: new Date().toISOString() // Added explicit created_at field
+          created_at: new Date().toISOString()
         });
       
       if (error) {
@@ -165,7 +162,7 @@ const Index = () => {
         throw error;
       }
       
-      const newExpense = { ...expense, id: newId };
+      const newExpense = { ...expense, id: expense.id };
       setExpenses([...expenses, newExpense]);
       toast.success("Gasto adicionado com sucesso!");
     } catch (error) {
@@ -246,7 +243,10 @@ const Index = () => {
           </div>
 
           <div className="space-y-6">
-            <ExpenseForm onAddExpense={handleAddExpense} />
+            <ExpenseForm 
+              onAddExpense={handleAddExpense}
+              currentMonthYear={currentMonthYear}
+            />
             <ExpenseList
               expenses={expenses}
               onDeleteExpense={handleDeleteExpense}
