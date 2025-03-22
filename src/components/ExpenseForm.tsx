@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { formatCurrency, parseCurrencyInput } from "@/utils/formatCurrency";
+import { toast } from "sonner";
 
 export interface Expense {
   id: string;
@@ -25,26 +26,51 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!description.trim() || !amount.trim()) return;
+    if (!description.trim()) {
+      toast.error("A descrição é obrigatória");
+      return;
+    }
+    
+    if (!amount.trim()) {
+      toast.error("O valor é obrigatório");
+      return;
+    }
     
     const parsedAmount = parseCurrencyInput(amount);
     
+    if (parsedAmount <= 0) {
+      toast.error("O valor deve ser maior que zero");
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    const newExpense: Expense = {
-      id: Date.now().toString(),
-      description: description.trim(),
-      amount: parsedAmount,
-      date: new Date(),
-    };
-    
-    onAddExpense(newExpense);
-    
-    // Reset form
-    setDescription("");
-    setAmount("");
-    
-    setTimeout(() => setIsSubmitting(false), 500);
+    try {
+      const newExpense: Expense = {
+        id: Date.now().toString(),
+        description: description.trim(),
+        amount: parsedAmount,
+        date: new Date(),
+      };
+      
+      onAddExpense(newExpense);
+      
+      // Reset form
+      setDescription("");
+      setAmount("");
+    } catch (error) {
+      console.error("Erro ao adicionar gasto:", error);
+      toast.error("Não foi possível adicionar o gasto. Tente novamente.");
+    } finally {
+      setTimeout(() => setIsSubmitting(false), 500);
+    }
+  };
+
+  // Handle input for currency formatting
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers, comma and dot
+    const value = e.target.value.replace(/[^\d,.]/g, "");
+    setAmount(value);
   };
 
   return (
@@ -75,10 +101,11 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ onAddExpense }) => {
             <Input
               id="expense-amount"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={handleAmountChange}
               placeholder="0,00"
               className="pl-10 input-focus-effect"
               required
+              inputMode="decimal"
             />
           </div>
         </div>
